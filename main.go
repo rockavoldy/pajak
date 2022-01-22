@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -14,6 +15,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-co-op/gocron"
 	"github.com/gocolly/colly"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -218,34 +221,122 @@ func (k *KursData) CreateJson() error {
 	return nil
 }
 
+// ResponseJSON. Will response to http with json data
+func ResponseJSON(rw http.ResponseWriter, data interface{}, status int) error {
+	dataJson, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	if status == 0 {
+		status = http.StatusOK
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	rw.WriteHeader(status)
+
+	rw.Write([]byte(dataJson))
+	return nil
+}
+
+// PrintResponse, to give response with single data (like get, create, update, or delete)
+type PrintResponse struct {
+	ResponseCode int                    `json:"response_code"`
+	Message      string                 `json:"message"`
+	Data         map[string]interface{} `json:"data"`
+}
+
+func NewRouter() *chi.Mux {
+	router := chi.NewMux()
+	router.Get("/", func(rw http.ResponseWriter, r *http.Request) {
+		data := PrintResponse{
+			ResponseCode: http.StatusOK,
+			Message:      "Kurs Pajak API: Diterbitkan oleh Kemenkeu setiap hari rabu.",
+		}
+
+		ResponseJSON(rw, data, data.ResponseCode)
+	})
+	router.MethodNotAllowed(func(rw http.ResponseWriter, r *http.Request) {
+		data := PrintResponse{
+			ResponseCode: http.StatusMethodNotAllowed,
+			Message:      "405 Method not allowed",
+		}
+
+		ResponseJSON(rw, data, data.ResponseCode)
+	})
+	router.NotFound(func(rw http.ResponseWriter, r *http.Request) {
+		data := PrintResponse{
+			ResponseCode: http.StatusNotFound,
+			Message:      "404 Not found",
+		}
+
+		ResponseJSON(rw, data, data.ResponseCode)
+	})
+
+	return router
+}
+
+var HTTP_PORT = ":8080"
+
 func main() {
-	db, err := sql.Open("sqlite3", "./db/pajak.db")
+	httpPortEnv := os.Getenv("HTTP_PORT")
+	if httpPortEnv != "" {
+		HTTP_PORT = httpPortEnv
+	}
+	router := NewRouter()
+
+	router.Get("/kurs", func(rw http.ResponseWriter, r *http.Request) {
+		content, _ := os.ReadFile("/home/akhmad/pajak/dist/kurs.json")
+		var payload map[string]interface{}
+		json.Unmarshal(content, &payload)
+		data := PrintResponse{
+			ResponseCode: http.StatusOK,
+			Message:      "Success",
+			Data:         payload,
+		}
+
+		ResponseJSON(rw, data, data.ResponseCode)
+	})
+
+	router.Post("/update-kurs", func(rw http.ResponseWriter, r *http.Request) {
+		kursData := &KursData{}
+		getKursData(kursData)
+		data := PrintResponse{
+			ResponseCode: http.StatusOK,
+			Message:      "Success update data",
+		}
+
+		err := kursData.CreateJson()
+		if err != nil {
+			log.Println(err)
+			data = PrintResponse{
+				ResponseCode: http.StatusBadRequest,
+				Message:      "Failed update data",
+			}
+		}
+
+		ResponseJSON(rw, data, data.ResponseCode)
+	})
+
+	loc, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
+		log.Println(err)
+		loc = time.UTC
+	}
+
+	s := gocron.NewScheduler(loc)
+	s.Every(1).Week().Weekday(time.Wednesday).Do(func() {
+		log.Println("=== Start cron get Kurs Data ===")
+		kursData := &KursData{}
+		getKursData(kursData)
+		err := kursData.CreateJson()
+		if err != nil {
+			log.Println(err)
+		}
+	})
+
+	log.Println("Listening on ", HTTP_PORT)
+	if err := http.ListenAndServe(HTTP_PORT, router); err != nil {
 		log.Panicln(err)
-	}
-	defer db.Close()
-
-	sqlstmt := `
-	CREATE TABLE IF NOT EXISTS kurs (id integer not null primary key, valid_from text, valid_to text, updated_at int); 
-	CREATE TABLE IF NOT EXISTS currency (id integer not null primary key, kurs_id integer, currency text, symbol text, value int, changes int, FOREIGN KEY(kurs_id) REFERENCES kurs(id));
-	CREATE TABLE IF NOT EXISTS kurs_checksum (id integer not null primary key, kurs_id integer, checksum text, FOREIGN KEY(kurs_id) REFERENCES kurs(id));`
-
-	_, err = db.Exec(sqlstmt)
-	if err != nil {
-		log.Printf("%q: %s\n", err, sqlstmt)
-		return
-	}
-
-	kursData := &KursData{}
-	getKursData(kursData)
-
-	exist := kursData.checkDuplicate(db)
-	if !exist {
-		kursData.Insert(db)
-	}
-
-	err = kursData.CreateJson()
-	if err != nil {
-		log.Fatalln(err)
 	}
 }
