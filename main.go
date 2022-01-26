@@ -214,6 +214,7 @@ func (k *KursData) CreateJson() error {
 
 	jsonData, _ := json.Marshal(kursPrint)
 	err = os.WriteFile("kurs.json", jsonData, 0666)
+	os.Chdir("..")
 	if err != nil {
 		return err
 	}
@@ -286,13 +287,22 @@ func main() {
 	router := NewRouter()
 
 	router.Get("/kurs", func(rw http.ResponseWriter, r *http.Request) {
-		content, _ := os.ReadFile("/home/akhmad/pajak/dist/kurs.json")
-		var payload map[string]interface{}
-		json.Unmarshal(content, &payload)
-		data := PrintResponse{
-			ResponseCode: http.StatusOK,
-			Message:      "Success",
-			Data:         payload,
+		currDir, err := os.Getwd()
+		data := PrintResponse{}
+		if err != nil {
+			data = PrintResponse{
+				ResponseCode: http.StatusInternalServerError,
+				Message:      err.Error(),
+			}
+		} else {
+			content, _ := os.ReadFile(currDir + "/dist/kurs.json")
+			var payload map[string]interface{}
+			json.Unmarshal(content, &payload)
+			data = PrintResponse{
+				ResponseCode: http.StatusOK,
+				Message:      "Success",
+				Data:         payload,
+			}
 		}
 
 		ResponseJSON(rw, data, data.ResponseCode)
