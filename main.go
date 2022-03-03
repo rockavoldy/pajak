@@ -345,6 +345,7 @@ func main() {
 		}
 	})
 
+	s.StartAsync()
 	log.Println("Listening on ", HTTP_PORT)
 	if err := http.ListenAndServe(HTTP_PORT, router); err != nil {
 		log.Panicln(err)
