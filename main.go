@@ -328,7 +328,7 @@ func main() {
 		ResponseJSON(rw, data, data.ResponseCode)
 	})
 
-	loc, err := time.LoadLocation("Asia/Jakarta")
+	loc, err := time.UTC
 	if err != nil {
 		log.Println(err)
 		loc = time.UTC
