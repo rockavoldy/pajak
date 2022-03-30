@@ -328,15 +328,11 @@ func main() {
 		ResponseJSON(rw, data, data.ResponseCode)
 	})
 
-	loc, err := time.UTC
-	if err != nil {
-		log.Println(err)
-		loc = time.UTC
-	}
-
-	s := gocron.NewScheduler(loc)
-	s.Every(1).Week().Weekday(time.Wednesday).Do(func() {
+	s := gocron.NewScheduler(time.UTC)
+	s.Every(1).Week().Weekday(time.Tuesday).At("22:00:00").Do(func() {
 		log.Println("=== Start cron get Kurs Data ===")
+		log.Println("Cron run at: ", time.Now())
+
 		kursData := &KursData{}
 		getKursData(kursData)
 		err := kursData.CreateJson()
@@ -344,6 +340,8 @@ func main() {
 			log.Println(err)
 		}
 	})
+
+	s.StartImmediately().StartAsync()
 
 	s.StartAsync()
 	log.Println("Listening on ", HTTP_PORT)
