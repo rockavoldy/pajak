@@ -1,6 +1,6 @@
 # Kurs Pajak
 
-This repository exists to scrape all kurs posted by Kemenkeu every thursday. This kurs is used by beacukai to calculate tax. You can use this API for free.
+This repository exists to scrape all kurs posted by Kemenkeu every Wednesday. This kurs is used by beacukai to calculate tax. You can use this API for free.
 
 ## Live API
 
@@ -45,6 +45,6 @@ This repository exists to scrape all kurs posted by Kemenkeu every thursday. Thi
   ```
   
 ## Roadmap
-- Add a way to query kurs by date
-- Save scrapped data to db somewhere
-- Add authorization and rate limiter to prevent abuser
+- [ ] Add a way to query kurs by date (just for history data i think?)
+- [ ] Save scrapped data to db somewhere
+- [x] Add authorization and rate limiter to prevent abuser (done by using API Gateway)
