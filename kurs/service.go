@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"log"
-	"pajak/currency"
 	"strconv"
 	"strings"
+
+	"github.com/rockavoldy/pajak/currency"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"

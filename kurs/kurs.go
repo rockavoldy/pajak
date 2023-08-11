@@ -2,8 +2,9 @@ package kurs
 
 import (
 	"encoding/json"
-	"pajak/currency"
 	"time"
+
+	"github.com/rockavoldy/pajak/currency"
 
 	"gopkg.in/guregu/null.v4"
 )

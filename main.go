@@ -4,7 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"pajak/kurs"
+
+	"github.com/rockavoldy/pajak/kurs"
 
 	"github.com/go-chi/chi/v5"
 )
