@@ -2,8 +2,10 @@ package kurs
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -17,6 +19,25 @@ import (
 var (
 	ErrMissingValidDate = errors.New("validation date is missing")
 )
+
+func loadKurs(ctx context.Context) (KursData, error) {
+	// load kursData from json
+	// check if the timestamp already pass
+	currDir, err := os.Getwd()
+	if err != nil {
+		return KursData{}, err
+	}
+
+	content, err := os.ReadFile(currDir + "/dist/kurs.json")
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return getKurs(ctx)
+		}
+	}
+	var kursData KursData
+	json.Unmarshal(content, &kursData)
+	return kursData, nil
+}
 
 func getKurs(ctx context.Context) (KursData, error) {
 	c := colly.NewCollector(
@@ -75,5 +96,31 @@ func getKurs(ctx context.Context) (KursData, error) {
 
 	c.Visit("https://fiskal.kemenkeu.go.id/informasi-publik/kurs-pajak")
 
+	err := createJsonKurs(ctx, kursData)
+	if err != nil {
+		return KursData{}, err
+	}
+
 	return kursData, nil
+}
+
+func createJsonKurs(ctx context.Context, kursData KursData) error {
+	err := os.MkdirAll("/dist", 0755)
+	if err != nil {
+		return err
+	}
+
+	kursJsonFile, err := os.OpenFile("/dist/kurs.json", os.O_RDWR|os.O_CREATE|os.O_EXCL, 0644)
+	if err != nil {
+		return err
+	}
+
+	kursDataJson, err := json.Marshal(kursData)
+	if err != nil {
+		return err
+	}
+
+	// TODO: need to check if timestamp saved on the file is inside this weeks (limited by Wednesday)
+	kursJsonFile.Write(kursDataJson)
+	return nil
 }
