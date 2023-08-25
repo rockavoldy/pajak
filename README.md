@@ -10,6 +10,5 @@ docker run -p 8080:8080 -t pajak:latest
 ```
 
 ## Roadmap
-- [ ] Add a way to query kurs by date (just for history data i think?)
-- [ ] Save scrapped data to db somewhere
-- [x] Add authorization and rate limiter to prevent abuser (done by using API Gateway)
+- [ ] Add frontend to the root endpoint
+- [ ] Add CORS
