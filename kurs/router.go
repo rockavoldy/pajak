@@ -37,12 +37,12 @@ func writeError(w http.ResponseWriter, status int, err error) {
 }
 
 func getKursHandler(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	kursData, err := loadKurs(ctx)
+	kursData, err := loadKurs()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		return
 	}
+
 	status := http.StatusOK
 	resp := Response{
 		Message: http.StatusText(status),
@@ -52,8 +52,13 @@ func getKursHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateKursHandler(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	kursData, err := getKurs(ctx)
+	err := UpdateKurs()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	kursData, err := loadKurs()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		return

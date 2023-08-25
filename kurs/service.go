@@ -1,7 +1,6 @@
 package kurs
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"log"
@@ -19,9 +18,8 @@ var (
 	ErrMissingValidDate = errors.New("validation date is missing")
 )
 
-func loadKurs(ctx context.Context) (KursData, error) {
-	// load kursData from json
-	// check if the timestamp already pass
+func loadKurs() (KursData, error) {
+	// no need to check the timestamp, since it will be updated regularly with cron
 	currDir, err := os.Getwd()
 	if err != nil {
 		return KursData{}, err
@@ -30,7 +28,7 @@ func loadKurs(ctx context.Context) (KursData, error) {
 	content, err := os.ReadFile(currDir + "/dist/kurs.json")
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			return getKurs(ctx)
+			UpdateKurs()
 		}
 	}
 
@@ -42,7 +40,21 @@ func loadKurs(ctx context.Context) (KursData, error) {
 	return kursData, nil
 }
 
-func getKurs(ctx context.Context) (KursData, error) {
+func UpdateKurs() error {
+	kursData, err := getNewKurs()
+	if err != nil {
+		return err
+	}
+
+	err = createJsonKurs(kursData)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func getNewKurs() (KursData, error) {
 	c := colly.NewCollector(
 		colly.AllowedDomains("fiskal.kemenkeu.go.id", "kemenkeu.go.id"),
 		colly.UserAgent("Googlebot/2.1 (http://www.googlebot.com/bot.html)"),
@@ -107,15 +119,10 @@ func getKurs(ctx context.Context) (KursData, error) {
 
 	c.Visit("https://fiskal.kemenkeu.go.id/informasi-publik/kurs-pajak")
 
-	err := createJsonKurs(ctx, kursData)
-	if err != nil {
-		return KursData{}, err
-	}
-
 	return kursData, nil
 }
 
-func createJsonKurs(ctx context.Context, kursData KursData) error {
+func createJsonKurs(kursData KursData) error {
 	currDir, err := os.Getwd()
 	if err != nil {
 		return err
@@ -141,7 +148,6 @@ func createJsonKurs(ctx context.Context, kursData KursData) error {
 		return err
 	}
 
-	// TODO: need to check if timestamp saved on the file is inside this weeks (limited by Wednesday)
 	err = os.WriteFile(currDir+"/dist/kurs.json", kursDataJson, 0644)
 	if err != nil {
 		return err

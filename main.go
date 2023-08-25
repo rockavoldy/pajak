@@ -4,7 +4,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/go-co-op/gocron"
 	"github.com/rockavoldy/pajak/kurs"
 
 	"github.com/go-chi/chi/v5"
@@ -21,22 +23,16 @@ func main() {
 	r := chi.NewRouter()
 	r.Mount("/kurs", kurs.Router())
 
-	// s := gocron.NewScheduler(time.UTC)
-	// s.Every(1).Week().Weekday(time.Tuesday).At("22:00:00").Do(func() {
-	// 	log.Println("=== Start cron get Kurs Data ===")
-	// 	log.Println("Cron run at: ", time.Now())
+	s := gocron.NewScheduler(time.UTC)
+	s.Every(1).Week().Weekday(time.Tuesday).At("22:00:00").Do(func() {
+		log.Println("=== Update kurs.json file ===")
+		log.Println("Cron run at: ", time.Now())
+		if err := kurs.UpdateKurs(); err != nil {
+			log.Printf("err scheduler: %s", err)
+		}
+	})
 
-	// kursData := &KursData{}
-	// getKursData(kursData)
-	// err := kursData.CreateJson()
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-	// })
-
-	// s.StartImmediately()
-
-	// s.StartAsync()
+	s.StartAsync()
 	log.Println("Listening on ", HTTP_PORT)
 	if err := http.ListenAndServe(HTTP_PORT, r); err != nil {
 		log.Panicln(err)
