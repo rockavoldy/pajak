@@ -13,7 +13,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
-	"gopkg.in/guregu/null.v4"
 )
 
 var (
@@ -34,8 +33,12 @@ func loadKurs(ctx context.Context) (KursData, error) {
 			return getKurs(ctx)
 		}
 	}
+
 	var kursData KursData
-	json.Unmarshal(content, &kursData)
+	err = json.Unmarshal(content, &kursData)
+	if err != nil {
+		return KursData{}, err
+	}
 	return kursData, nil
 }
 
@@ -51,16 +54,16 @@ func getKurs(ctx context.Context) (KursData, error) {
 		text := strings.TrimSpace(h.Text)
 		text = strings.TrimPrefix(text, "Tanggal Berlaku: ")
 		textSplitted := strings.Split(text, " - ")
-		kursData.ValidFrom = null.StringFrom(textSplitted[0])
-		kursData.ValidTo = null.StringFrom(textSplitted[1])
+		kursData.ValidFrom = textSplitted[0]
+		kursData.ValidTo = textSplitted[1]
 	})
 
 	c.OnHTML("table tbody", func(h *colly.HTMLElement) {
 		h.DOM.Find("tr").Each(func(i int, s *goquery.Selection) {
 			var name string
 			var symbol string
-			var value int
-			var changes int
+			var value float64
+			var changes float64
 			s.Find("td").Each(func(index int, el *goquery.Selection) {
 				if index == 1 {
 					name = el.Find("span.hidden-xs").Text()
@@ -71,14 +74,22 @@ func getKurs(ctx context.Context) (KursData, error) {
 					val = strings.ReplaceAll(val, ",", "")
 
 					valu, _ := strconv.ParseInt(val, 10, 64)
-					value = int(valu)
+					if strings.Compare(symbol, "JPY") == 0 {
+						value = float64(valu) / 100
+					} else {
+						value = float64(valu)
+					}
 				} else if index == 3 {
 					val := strings.TrimSpace(el.Text())
 					val = strings.ReplaceAll(val, ".", "")
 					val = strings.ReplaceAll(val, ",", "")
 
 					change, _ := strconv.ParseInt(val, 10, 32)
-					changes = int(change)
+					if strings.Compare(symbol, "JPY") == 0 {
+						changes = float64(change) / 100
+					} else {
+						changes = float64(change)
+					}
 				}
 			})
 
@@ -105,15 +116,25 @@ func getKurs(ctx context.Context) (KursData, error) {
 }
 
 func createJsonKurs(ctx context.Context, kursData KursData) error {
-	err := os.MkdirAll("/dist", 0755)
+	currDir, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	kursJsonFile, err := os.OpenFile("/dist/kurs.json", os.O_RDWR|os.O_CREATE|os.O_EXCL, 0644)
+	err = os.MkdirAll(currDir+"/dist", 0755)
 	if err != nil {
-		return err
+		if !errors.Is(err, os.ErrExist) {
+			return err
+		}
 	}
+
+	kursDataFile, err := os.OpenFile(currDir+"/dist/kurs.json", os.O_RDWR|os.O_CREATE|os.O_EXCL, 0644)
+	if err != nil {
+		if !errors.Is(err, os.ErrExist) {
+			return err
+		}
+	}
+	defer kursDataFile.Close()
 
 	kursDataJson, err := json.Marshal(kursData)
 	if err != nil {
@@ -121,6 +142,10 @@ func createJsonKurs(ctx context.Context, kursData KursData) error {
 	}
 
 	// TODO: need to check if timestamp saved on the file is inside this weeks (limited by Wednesday)
-	kursJsonFile.Write(kursDataJson)
+	err = os.WriteFile(currDir+"/dist/kurs.json", kursDataJson, 0644)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

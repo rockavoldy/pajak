@@ -23,14 +23,14 @@ func validateSymbol(symbol string) error {
 	return nil
 }
 
-func validateValue(value int) error {
+func validateValue(value float64) error {
 	if value == 0 {
 		return ErrValueEmpty
 	}
 	return nil
 }
 
-func validateChanges(changes int) error {
+func validateChanges(changes float64) error {
 	if changes == 0 {
 		return ErrChangesEmpty
 	}

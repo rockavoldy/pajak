@@ -6,7 +6,6 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/gocolly/colly v1.2.0
-	gopkg.in/guregu/null.v4 v4.0.0
 )
 
 require (

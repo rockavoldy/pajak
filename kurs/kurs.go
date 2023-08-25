@@ -5,22 +5,20 @@ import (
 	"time"
 
 	"github.com/rockavoldy/pajak/currency"
-
-	"gopkg.in/guregu/null.v4"
 )
 
 type KursData struct {
 	UpdatedAt  time.Time
-	ValidFrom  null.String
-	ValidTo    null.String
+	ValidFrom  string
+	ValidTo    string
 	Currencies []currency.Currency
 }
 
 func NewKursData() KursData {
 	return KursData{
 		UpdatedAt:  time.Now(),
-		ValidFrom:  null.String{},
-		ValidTo:    null.String{},
+		ValidFrom:  "",
+		ValidTo:    "",
 		Currencies: nil,
 	}
 }
@@ -34,8 +32,8 @@ func (k KursData) MarshalJSON() ([]byte, error) {
 	}
 
 	j.UpdatedAt = k.UpdatedAt
-	j.ValidFrom = k.ValidFrom.String
-	j.ValidTo = k.ValidTo.String
+	j.ValidFrom = k.ValidFrom
+	j.ValidTo = k.ValidTo
 	j.Currencies = k.Currencies
 
 	return json.Marshal(j)
@@ -54,12 +52,10 @@ func (k *KursData) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	k = &KursData{
-		UpdatedAt:  j.UpdatedAt,
-		ValidFrom:  null.StringFrom(j.ValidFrom),
-		ValidTo:    null.StringFrom(j.ValidTo),
-		Currencies: j.Currencies,
-	}
+	k.UpdatedAt = j.UpdatedAt
+	k.ValidFrom = j.ValidFrom
+	k.ValidTo = j.ValidTo
+	k.Currencies = j.Currencies
 
 	return nil
 }
