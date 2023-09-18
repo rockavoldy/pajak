@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "tailwindcss": "^3.3.3"
+  },
+  "scripts": {
+    "prod": "tailwindcss -i ./src/styles.css -o ./dist/styles.css -m"
+  }
+}
