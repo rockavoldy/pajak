@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Bea Masuk Barang Impor</title>
+    <meta name="description" content="Membantu untuk mendapat gambaran kasar berapa pajak yang harus dibayar ketika melakukan impor barang dari luar.">
+    <link href="/styles.css" rel="stylesheet">
+    <script>
+        const idrFormatter = new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+        });
+        
+        let currencyDataList = []
+        let readyToCalculate = false
+
+        fetch("/kurs/")
+            .then(res => res.json())
+            .then(resData => {
+                const currencyChoice = document.getElementById("currencyChoice")
+                currencyChoice.innerHTML = ""
+                const currencyData = document.getElementById("currencyData")
+
+                resData.data.currencies.forEach(function(currency) {
+                    const optionHtml = document.createElement("option")
+                    optionHtml.value = currency.symbol
+                    optionHtml.innerText = currency.name
+                    currencyChoice.appendChild(optionHtml)
+
+                    const divRow = document.createElement("div")
+                    divRow.classList.value = "table-row"
+
+                    const divSymbol = document.createElement("div")
+                    divSymbol.classList.value = "table-cell border-b border-slate-400"
+                    divSymbol.innerText = "1 " + currency.symbol
+
+                    const divValue = document.createElement("div")
+                    divValue.classList.value = "table-cell border-b border-slate-400"
+                    divValue.innerText = idrFormatter.format(currency.value)
+                    
+                    divRow.appendChild(divSymbol)
+                    divRow.appendChild(divValue)
+
+                    currencyData.appendChild(divRow)
+
+                    currencyDataList.push({
+                        "symbol": currency.symbol,
+                        "value": currency.value
+                    })
+                })
+            }).finally(() => readyToCalculate = true);
+    </script>
+</head>
+<body>
+    <div class="mx-auto w-screen h-screen justify-center flex bg-slate-800 text-white">
+        <div class="w-6/12">
+            <h1 class="text-xl text-center mt-3">Kalkulator Pajak Dalam Rangka Impor</h1>
+            <div class="w-full table mt-5 mx-5">
+                <div class="w-full table-row px-2 py-1 rounded border">
+                    <div class="table-cell py-1">
+                        <label for="currencyChoice">Pilih mata uang</label>
+                    </div>
+                    <div class="table-cell py-1">
+                        <select id="currencyChoice" name="currency" class="rounded border p-1 border-slate-500 bg-slate-600">
+                            <option value="USD" selected>USD</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="w-full table-row px-2">
+                    <div class="table-cell py-1">
+                        <label for="cost">Harga barang</label>
+                    </div>
+                    <div class="table-cell py-1">
+                        <input type="number" id="cost" class="rounded pl-2 border border-slate-500 bg-slate-600" name="cost" />
+                    </div>
+                </div>
+                <div class="w-full table-row px-2">
+                    <div class="table-cell py-1">
+                        <label for="insurance">Biaya asuransi</label>
+                    </div>
+                    <div class="table-cell py-1">
+                        <input type="number" id="insurance" class="rounded pl-2 border border-slate-500 bg-slate-600" name="insurance" />
+                    </div>
+                </div>
+                <div class="w-full table-row px-2">
+                    <div class="table-cell py-1">
+                        <label for="freight">Ongkos kirim</label>
+                    </div>
+                    <div class="table-cell py-1">
+                        <input type="number" id="freight" class="rounded pl-2 border border-slate-500 bg-slate-600" name="freight" />
+                    </div>
+                </div>
+                <div class="w-full table-row px-2">
+                    <div class="table-cell py-1">
+                        PPh 22
+                    </div>
+                    <div class="table-cell py-1">
+                        <input type="radio" value="1" id="have_npwp" name="npwp" /> <label for="have_npwp">Memiliki NPWP (7.5%)</label> <input type="radio" value="0" name="npwp" id="no_npwp" checked /> <label for="no_npwp">Tidak memiliki NPWP (15%)</label>
+                    </div>
+                </div>
+                <div class="w-full table-row px-2">
+                    <div class="table-cell py-1">
+                        <label for="tax_percent">Bea Masuk</label>
+                    </div>
+                    <div class="table-cell py-1"><input type="number" id="tax_percent" class="rounded pl-2 border border-slate-500 bg-slate-600" max="100" min="0" step="0.1" name="tax_percent" value="7.5" />&nbsp;% <span class="text-gray-800 text-sm">Bea masuk dapat berbeda untuk beberapa jenis barang.</span></div>
+                </div>
+
+                <div class="w-full table-row px-2">
+                    <button id="calculateTax" class="px-3 py-1 border border-slate-200 rounded bg-slate-600">Hitung</button>
+                </div>
+            </div>
+
+            <div id="calculationResult" class="table w-10/12 mt-5 mx-5">
+                <div class="w-full table-row px-2">
+                    <div class="table-cell py-1">
+                        <label for="result_bea_masuk">Bea masuk</label>
+                    </div>
+                    <div class="table-cell py-1">
+                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_bea_masuk" id="result_bea_masuk" readonly />
+                    </div>
+                </div>
+                <div class="w-full table-row px-2">
+                    <div class="table-cell py-1">
+                        <label for="result_ppn">PPN 11% (dari FOB + Bea masuk)</label>
+                    </div>
+                    <div class="table-cell py-1">
+                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_ppn" id="result_ppn" readonly />
+                    </div>
+                </div>
+                <div class="w-full table-row px-2">
+                    <div class="table-cell py-1">
+                        <label for="result_pph">PPh</label>
+                    </div>
+                    <div class="table-cell py-1">
+                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_pph" id="result_pph" readonly />
+                    </div>
+                </div>
+                <div class="w-full table-row px-2">
+                    <div class="table-cell py-1">
+                        <label for="result_total_tax">Total pajak impor</label>
+                    </div>
+                    <div class="table-cell py-1">
+                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_total_tax" id="result_total_tax" readonly />
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-5 bg-slate-100 mt-3 py-2 px-3 rounded border border-slate-400">
+                <span class="text-red-500 text-sm">Total di atas adalah perkiraan berdasar pada perhitungan <a class="underline decoration-blue-600 text-blue-700 hover:text-blue-500" href="https://jdih.kemenkeu.go.id/fullText/2019/199~PMK.010~2019Per.pdf">PMK 199/2019</a> dan <u class="font-bold">HANYA</u> pajak dalam rangka impor. Belum termasuk biaya lain-lain seperti repack oleh POS, atau jasa pengiriman lokal dari kurir.</span>
+            </div>
+
+
+        </div>
+        <div class="w-2/12 bg-slate-600 px-2 py-1" id="sidebar">
+            <!-- Show this week rate in this section -->
+            <h2 class="text-lg">Kurs minggu ini</h2>
+            <div class="w-full table">
+                <div class="table-header-group">
+                    <div class="table-row">
+                        <div class="table-cell text-left border-b border-slate-100">Mata uang</div>
+                        <div class="table-cell text-left border-b border-slate-100">Nilai</div>
+                    </div>
+                </div>
+                <div class="table-row-group" id="currencyData"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const btnCalc = document.getElementById("calculateTax")
+        btnCalc.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const currency = document.getElementById("currencyChoice").value
+            const cost = parseFloat(document.getElementById("cost").value)
+            const insurance = parseFloat(document.getElementById("insurance").value)
+            const freight = parseFloat(document.getElementById("freight").value)
+            const cif = cost + insurance + freight
+
+            const curr_rate = currencyDataList.find((el) => el.symbol == currency)
+
+            // everything will be use ceiling function
+            const cif_idr = cif * curr_rate.value
+
+            const tax_percent = parseFloat(document.getElementById("tax_percent").value)
+            // https://www.pajak.go.id/id/pph-pasal-22
+            const pph_percent = document.getElementsByName("npwp") ? 7.5 : 15
+
+            // calculate bea masuk
+            // cif_idr * tax_percent
+            const beamasuk = Math.ceil(cif_idr * (tax_percent / 100))
+            const subtotal_beamasuk = cif_idr + beamasuk
+
+            // calculate ppn 11%
+            // subtotal_beamasuk * 11%
+            const ppn = Math.ceil(subtotal_beamasuk * (11 / 100))
+
+            // calculate pph
+            // subtotal_beamasuk * pph_percent
+            const pph = Math.ceil(subtotal_beamasuk * (pph_percent / 100))
+
+            // total tax needed to be paid
+            const total_tax = beamasuk + ppn + pph
+
+            document.getElementById("result_bea_masuk").value = idrFormatter.format(beamasuk)
+            document.getElementById("result_pph").value = idrFormatter.format(pph)
+            document.getElementById("result_ppn").value = idrFormatter.format(ppn)
+            document.getElementById("result_total_tax").value = idrFormatter.format(total_tax)
+        })
+    </script>
+</body>
+</html>

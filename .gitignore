@@ -1,3 +1,7 @@
 pajak
 pajak.db
 dist/
+node_modules/
+!templates/dist/
+.DS_Store
+pajak
