@@ -21,9 +21,9 @@ jobs:
         go mod tidy
         go fmt ./...
         env GOOS=linux GOARCH=amd64 go build -o pajak .
-        mkdir ../build
-        cp -TR pajak ../build/
-        tar -cvf deploy.tar ../build/
+        mkdir build
+        cp -TR pajak build/
+        tar -cvf deploy.tar build/
 
         
 
