@@ -22,10 +22,8 @@ jobs:
         go fmt ./...
         env GOOS=linux GOARCH=amd64 go build -o pajak .
         mkdir build
-        cp -TR pajak build/
+        cp pajak build/
         tar -cvf deploy.tar build/
-
-        
 
     - name: Stop service
       uses: appleboy/ssh-action@v1.0.0
