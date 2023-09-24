@@ -21,8 +21,6 @@ jobs:
         go mod tidy
         go fmt ./...
         env GOOS=linux GOARCH=amd64 go build -o pajak .
-        mkdir build
-        mv pajak build/
 
     - name: Stop service
       uses: appleboy/ssh-action@v1.0.0
@@ -41,7 +39,7 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         key: ${{ secrets.SSH_KEY }}
         target: ${{ secrets.TARGET_PATH }}
-        source: build/pajak
+        source: pajak
         overwrite: true
 
     - name: Start service
