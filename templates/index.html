@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Bea Masuk Barang Impor</title>
-    <meta name="description" content="Membantu untuk mendapat gambaran kasar berapa pajak yang harus dibayar ketika melakukan impor barang dari luar.">
+    <meta name="description"
+        content="Membantu untuk mendapat gambaran kasar berapa pajak yang harus dibayar ketika melakukan impor barang dari luar.">
     <link href="/styles.css" rel="stylesheet">
     <script>
         const idrFormatter = new Intl.NumberFormat(undefined, {
@@ -13,7 +15,7 @@
             minimumFractionDigits: 0,
             maximumFractionDigits: 2,
         });
-        
+
         let currencyDataList = []
         let readyToCalculate = false
 
@@ -24,7 +26,7 @@
                 currencyChoice.innerHTML = ""
                 const currencyData = document.getElementById("currencyData")
 
-                resData.data.currencies.forEach(function(currency) {
+                resData.data.currencies.forEach(function (currency) {
                     const optionHtml = document.createElement("option")
                     optionHtml.value = currency.symbol
                     optionHtml.innerText = currency.name
@@ -40,7 +42,7 @@
                     const divValue = document.createElement("div")
                     divValue.classList.value = "table-cell border-b border-slate-400"
                     divValue.innerText = idrFormatter.format(currency.value)
-                    
+
                     divRow.appendChild(divSymbol)
                     divRow.appendChild(divValue)
 
@@ -54,6 +56,7 @@
             }).finally(() => readyToCalculate = true);
     </script>
 </head>
+
 <body>
     <div class="mx-auto w-screen h-screen justify-center flex bg-slate-800 text-white">
         <div class="w-6/12">
@@ -64,7 +67,8 @@
                         <label for="currencyChoice">Pilih mata uang</label>
                     </div>
                     <div class="table-cell py-1">
-                        <select id="currencyChoice" name="currency" class="rounded border p-1 border-slate-500 bg-slate-600">
+                        <select id="currencyChoice" name="currency"
+                            class="rounded border p-1 border-slate-500 bg-slate-600">
                             <option value="USD" selected>USD</option>
                         </select>
                     </div>
@@ -74,7 +78,8 @@
                         <label for="cost">Harga barang</label>
                     </div>
                     <div class="table-cell py-1">
-                        <input type="number" id="cost" class="rounded pl-2 border border-slate-500 bg-slate-600" name="cost" />
+                        <input type="number" id="cost" class="rounded pl-2 border border-slate-500 bg-slate-600"
+                            name="cost" />
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -82,7 +87,8 @@
                         <label for="insurance">Biaya asuransi</label>
                     </div>
                     <div class="table-cell py-1">
-                        <input type="number" id="insurance" class="rounded pl-2 border border-slate-500 bg-slate-600" name="insurance" />
+                        <input type="number" id="insurance" class="rounded pl-2 border border-slate-500 bg-slate-600"
+                            name="insurance" />
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -90,7 +96,8 @@
                         <label for="freight">Ongkos kirim</label>
                     </div>
                     <div class="table-cell py-1">
-                        <input type="number" id="freight" class="rounded pl-2 border border-slate-500 bg-slate-600" name="freight" />
+                        <input type="number" id="freight" class="rounded pl-2 border border-slate-500 bg-slate-600"
+                            name="freight" />
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -98,18 +105,26 @@
                         PPh 22
                     </div>
                     <div class="table-cell py-1">
-                        <input type="radio" value="1" id="have_npwp" name="npwp" /> <label for="have_npwp">Memiliki NPWP (7.5%)</label> <input type="radio" value="0" name="npwp" id="no_npwp" checked /> <label for="no_npwp">Tidak memiliki NPWP (15%)</label>
+                        <input type="radio" value="1" id="have_npwp" name="npwp" /> <label for="have_npwp">Memiliki NPWP
+                            (7.5%)</label> <input type="radio" value="0" name="npwp" id="no_npwp" checked /> <label
+                            for="no_npwp">Tidak memiliki NPWP (15%)</label>
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
                     <div class="table-cell py-1">
                         <label for="tax_percent">Bea Masuk</label>
                     </div>
-                    <div class="table-cell py-1"><input type="number" id="tax_percent" class="rounded pl-2 border border-slate-500 bg-slate-600" max="100" min="0" step="0.1" name="tax_percent" value="7.5" />&nbsp;% <span class="text-gray-800 text-sm">Bea masuk dapat berbeda untuk beberapa jenis barang.</span></div>
+                    <div class="table-cell py-1">
+                        <input type="number" id="tax_percent" class="rounded pl-2 border border-slate-500 bg-slate-600"
+                            max="100" min="0" step="0.1" name="tax_percent" value="7.5" />&nbsp;%
+                        <span class="text-slate-300 text-sm">Bea masuk dapat berbeda untuk
+                            beberapa jenis barang (Ex. Pakaian)</span>
+                    </div>
                 </div>
 
                 <div class="w-full table-row px-2">
-                    <button id="calculateTax" class="px-3 py-1 border border-slate-200 rounded bg-slate-600">Hitung</button>
+                    <button id="calculateTax"
+                        class="px-3 py-1 border border-slate-200 rounded bg-slate-600">Hitung</button>
                 </div>
             </div>
 
@@ -119,7 +134,8 @@
                         <label for="result_bea_masuk">Bea masuk</label>
                     </div>
                     <div class="table-cell py-1">
-                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_bea_masuk" id="result_bea_masuk" readonly />
+                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600"
+                            name="result_bea_masuk" id="result_bea_masuk" readonly />
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -127,7 +143,8 @@
                         <label for="result_ppn">PPN 11% (dari FOB + Bea masuk)</label>
                     </div>
                     <div class="table-cell py-1">
-                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_ppn" id="result_ppn" readonly />
+                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_ppn"
+                            id="result_ppn" readonly />
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -135,7 +152,8 @@
                         <label for="result_pph">PPh</label>
                     </div>
                     <div class="table-cell py-1">
-                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_pph" id="result_pph" readonly />
+                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_pph"
+                            id="result_pph" readonly />
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -143,13 +161,18 @@
                         <label for="result_total_tax">Total pajak impor</label>
                     </div>
                     <div class="table-cell py-1">
-                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_total_tax" id="result_total_tax" readonly />
+                        <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600"
+                            name="result_total_tax" id="result_total_tax" readonly />
                     </div>
                 </div>
             </div>
 
             <div class="mx-5 bg-slate-100 mt-3 py-2 px-3 rounded border border-slate-400">
-                <span class="text-red-500 text-sm">Total di atas adalah perkiraan berdasar pada perhitungan <a class="underline decoration-blue-600 text-blue-700 hover:text-blue-500" href="https://jdih.kemenkeu.go.id/fullText/2019/199~PMK.010~2019Per.pdf">PMK 199/2019</a> dan <u class="font-bold">HANYA</u> pajak dalam rangka impor. Belum termasuk biaya lain-lain seperti repack oleh POS, atau jasa pengiriman lokal dari kurir.</span>
+                <span class="text-red-500 text-sm">Total di atas adalah perkiraan berdasar pada perhitungan <a
+                        class="underline decoration-blue-600 text-blue-700 hover:text-blue-500"
+                        href="https://jdih.kemenkeu.go.id/fullText/2019/199~PMK.010~2019Per.pdf">PMK 199/2019</a> dan <u
+                        class="font-bold">HANYA</u> pajak dalam rangka impor. Belum termasuk biaya lain-lain seperti
+                    repack oleh POS, atau jasa pengiriman lokal dari kurir.</span>
             </div>
 
 
@@ -212,4 +235,5 @@
         })
     </script>
 </body>
+
 </html>
