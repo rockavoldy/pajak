@@ -22,8 +22,8 @@ var (
 	//go:embed templates
 	res   embed.FS
 	pages = map[string]string{
-		"/":           "templates/index.html",
-		"/styles.css": "templates/dist/styles.css",
+		"/":                "templates/index.html",
+		"/dist/styles.css": "templates/dist/styles.css",
 	}
 )
 var t *template.Template
@@ -50,7 +50,7 @@ func main() {
 
 	// })
 	r.Get("/", indexHtml)
-	r.Get("/styles.css", stylesCss)
+	r.Get("/dist/styles.css", stylesCss)
 
 	// kurs API serve
 	r.Mount("/kurs", kurs.Router())
