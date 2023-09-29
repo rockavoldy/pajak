@@ -10,6 +10,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       
+    - name: Set up nodejs
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Compile tailwindcss
+      run: |
+        cd templates
+        yarn install
+        yarn prod
+        cd ..
+      
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
