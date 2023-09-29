@@ -18,8 +18,14 @@ import (
 
 var HTTP_PORT = ":8080"
 
-//go:embed templates/*
-var res embed.FS
+var (
+	//go:embed templates
+	res   embed.FS
+	pages = map[string]string{
+		"/":           "templates/index.html",
+		"/styles.css": "templates/dist/styles.css",
+	}
+)
 var t *template.Template
 
 func main() {
@@ -40,6 +46,9 @@ func main() {
 	))
 
 	// view and assets
+	// r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+
+	// })
 	r.Get("/", indexHtml)
 	r.Get("/styles.css", stylesCss)
 
@@ -64,11 +73,49 @@ func main() {
 }
 
 func indexHtml(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("content-type", "text/html")
-	t.ExecuteTemplate(w, "index.html", nil)
+	page, ok := pages[r.URL.Path]
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	tmpl, err := template.ParseFS(res, page)
+	if err != nil {
+		log.Printf("page %s not found", r.RequestURI)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+
+	data := map[string]interface{}{
+		"userAgent": r.UserAgent(),
+	}
+	if err := tmpl.Execute(w, data); err != nil {
+		return
+	}
 }
 
 func stylesCss(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("content-type", "text/css")
-	t.ExecuteTemplate(w, "styles.css", nil)
+	page, ok := pages[r.URL.Path]
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+	}
+
+	tmpl, err := template.ParseFS(res, page)
+	if err != nil {
+		log.Printf("page %s not found", r.RequestURI)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/css")
+	w.WriteHeader(http.StatusOK)
+
+	data := map[string]interface{}{
+		"userAgent": r.UserAgent(),
+	}
+	if err := tmpl.Execute(w, data); err != nil {
+		return
+	}
 }
