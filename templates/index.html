@@ -57,9 +57,9 @@
     </script>
 </head>
 
-<body>
-    <div class="mx-auto w-screen h-screen justify-center flex bg-slate-800 text-white">
-        <div class="w-6/12">
+<body class="bg-slate-800 text-white">
+    <div class="justify-center flex flex-wrap">
+        <div class="w-full lg:w-8/12 xl:w-6/12 mb-6">
             <h1 class="text-xl text-center mt-3">Kalkulator Pajak Dalam Rangka Impor</h1>
             <div class="w-full table mt-5 mx-5">
                 <div class="w-full table-row px-2 py-1 rounded border">
@@ -79,7 +79,7 @@
                     </div>
                     <div class="table-cell py-1">
                         <input type="number" id="cost" class="rounded pl-2 border border-slate-500 bg-slate-600"
-                            name="cost" />
+                            name="cost" value="0" />
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -88,7 +88,7 @@
                     </div>
                     <div class="table-cell py-1">
                         <input type="number" id="insurance" class="rounded pl-2 border border-slate-500 bg-slate-600"
-                            name="insurance" />
+                            name="insurance" value="0" />
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -97,17 +97,24 @@
                     </div>
                     <div class="table-cell py-1">
                         <input type="number" id="freight" class="rounded pl-2 border border-slate-500 bg-slate-600"
-                            name="freight" />
+                            name="freight" value="0" />
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
                     <div class="table-cell py-1">
                         PPh 22
                     </div>
-                    <div class="table-cell py-1">
-                        <input type="radio" value="1" id="have_npwp" name="npwp" /> <label for="have_npwp">Memiliki NPWP
-                            (7.5%)</label> <input type="radio" value="0" name="npwp" id="no_npwp" checked /> <label
-                            for="no_npwp">Tidak memiliki NPWP (15%)</label>
+                    <div class="py-1 table-cell">
+                        <div class="flex flex-col flex-wrap">
+                            <div class="w-full">
+                                <input type="radio" value="1" id="have_npwp" name="npwp" />
+                                <label for="have_npwp">Memiliki NPWP (7.5%)</label> 
+                            </div>
+                            <div class="w-full">
+                                <input type="radio" value="0" name="npwp" id="no_npwp" checked />
+                                <label for="no_npwp">Tidak memiliki NPWP (15%)</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -117,12 +124,13 @@
                     <div class="table-cell py-1">
                         <input type="number" id="tax_percent" class="rounded pl-2 border border-slate-500 bg-slate-600"
                             max="100" min="0" step="0.1" name="tax_percent" value="7.5" />&nbsp;%
+                            <br />
                         <span class="text-slate-300 text-sm">Bea masuk dapat berbeda untuk
                             beberapa jenis barang (Ex. Pakaian)</span>
                     </div>
                 </div>
 
-                <div class="w-full table-row px-2">
+                <div class="w-full px-2">
                     <button id="calculateTax"
                         class="px-3 py-1 border border-slate-200 rounded bg-slate-600">Hitung</button>
                 </div>
@@ -177,7 +185,7 @@
 
 
         </div>
-        <div class="w-2/12 bg-slate-600 px-2 py-1" id="sidebar">
+        <div class="w-6/12 lg:w-4/12 xl:w-2/12 bg-slate-600 px-2 py-1 rounded mt-3" id="sidebar">
             <!-- Show this week rate in this section -->
             <h2 class="text-lg">Kurs minggu ini</h2>
             <div class="w-full table">
@@ -201,6 +209,10 @@
             const cost = parseFloat(document.getElementById("cost").value)
             const insurance = parseFloat(document.getElementById("insurance").value)
             const freight = parseFloat(document.getElementById("freight").value)
+            if (!cost) {
+                alert("Harga barang tidak boleh 0")
+                return
+            }
             const cif = cost + insurance + freight
 
             const curr_rate = currencyDataList.find((el) => el.symbol == currency)
@@ -234,6 +246,7 @@
             document.getElementById("result_total_tax").value = idrFormatter.format(total_tax)
         })
     </script>
+    <script async src="https://umami.akhmad.id/script.js" data-website-id="b446c93c-23c2-4535-9505-67e3a1726138"></script>
 </body>
 
 </html>
