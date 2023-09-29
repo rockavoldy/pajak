@@ -16,44 +16,55 @@
             maximumFractionDigits: 2,
         });
 
-        let currencyDataList = []
-        let readyToCalculate = false
+        const cleanup = () => {
+            document.getElementById("result_bea_masuk").value = ""
+            document.getElementById("result_pph").value = ""
+            document.getElementById("result_ppn").value = ""
+            document.getElementById("result_total_tax").value = ""
+        }
 
-        fetch("/kurs/")
-            .then(res => res.json())
-            .then(resData => {
-                const currencyChoice = document.getElementById("currencyChoice")
-                currencyChoice.innerHTML = ""
-                const currencyData = document.getElementById("currencyData")
+        let currencyDataList = [
+            {
+                "symbol": "IDR",
+                "value": 1
+            }
+        ]
 
-                resData.data.currencies.forEach(function (currency) {
-                    const optionHtml = document.createElement("option")
-                    optionHtml.value = currency.symbol
-                    optionHtml.innerText = currency.name
-                    currencyChoice.appendChild(optionHtml)
+        async function fillCurrencyData(data) {
+            const currencyChoice = document.getElementById("currencyChoice")
+            const currencyData = document.getElementById("currencyData")
+            data.currencies.forEach(function (currency) {
+                const optionHtml = document.createElement("option")
+                optionHtml.value = currency.symbol
+                optionHtml.innerText = currency.name
+                currencyChoice.appendChild(optionHtml)
 
-                    const divRow = document.createElement("div")
-                    divRow.classList.value = "table-row"
+                const divRow = document.createElement("div")
+                divRow.classList.value = "table-row"
 
-                    const divSymbol = document.createElement("div")
-                    divSymbol.classList.value = "table-cell border-b border-slate-400"
-                    divSymbol.innerText = "1 " + currency.symbol
+                const divSymbol = document.createElement("div")
+                divSymbol.classList.value = "table-cell border-b border-slate-400"
+                divSymbol.innerText = "1 " + currency.symbol
 
-                    const divValue = document.createElement("div")
-                    divValue.classList.value = "table-cell border-b border-slate-400"
-                    divValue.innerText = idrFormatter.format(currency.value)
+                const divValue = document.createElement("div")
+                divValue.classList.value = "table-cell border-b border-slate-400"
+                divValue.innerText = idrFormatter.format(currency.value)
 
-                    divRow.appendChild(divSymbol)
-                    divRow.appendChild(divValue)
+                divRow.appendChild(divSymbol)
+                divRow.appendChild(divValue)
 
-                    currencyData.appendChild(divRow)
+                currencyData.appendChild(divRow)
 
-                    currencyDataList.push({
-                        "symbol": currency.symbol,
-                        "value": currency.value
-                    })
+                currencyDataList.push({
+                    "symbol": currency.symbol,
+                    "value": currency.value
                 })
-            }).finally(() => readyToCalculate = true);
+            })
+        }
+
+        fetch("/kurs/").then(res => res.json()).then(resData => {
+            fillCurrencyData(resData.data)
+        });
     </script>
 </head>
 
@@ -69,7 +80,7 @@
                     <div class="table-cell py-1">
                         <select id="currencyChoice" name="currency"
                             class="rounded border p-1 border-slate-500 bg-slate-600">
-                            <option value="USD" selected>USD</option>
+                            <option value="IDR" selected>Indonesia Rupiah (IDR)</option>
                         </select>
                     </div>
                 </div>
@@ -80,6 +91,7 @@
                     <div class="table-cell py-1">
                         <input type="number" id="cost" class="rounded pl-2 border border-slate-500 bg-slate-600"
                             name="cost" value="0" />
+                        <label for="currencyChoice" class="currency">IDR</label>
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -89,6 +101,7 @@
                     <div class="table-cell py-1">
                         <input type="number" id="insurance" class="rounded pl-2 border border-slate-500 bg-slate-600"
                             name="insurance" value="0" />
+                        <label for="currencyChoice" class="currency">IDR</label>
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -98,6 +111,7 @@
                     <div class="table-cell py-1">
                         <input type="number" id="freight" class="rounded pl-2 border border-slate-500 bg-slate-600"
                             name="freight" value="0" />
+                        <label for="currencyChoice" class="currency">IDR</label>
                     </div>
                 </div>
                 <div class="w-full table-row px-2">
@@ -200,7 +214,14 @@
         </div>
     </div>
     <script>
-        const btnCalc = document.getElementById("calculateTax")
+        const currChoice = document.getElementById("currencyChoice");
+        currChoice.addEventListener("change", (event) => {
+            cleanup();
+            currDisplay = document.getElementsByClassName("currency");
+            Array.from(currDisplay).forEach((el) => el.innerText = currChoice.value)
+
+        })
+        const btnCalc = document.getElementById("calculateTax");
         btnCalc.addEventListener("click", (event) => {
             event.preventDefault();
             event.stopPropagation();
