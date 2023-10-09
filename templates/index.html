@@ -8,6 +8,7 @@
     <meta name="description"
         content="Kalkulator untuk hitung pajak dalam rangka impor. Dapatkan perkiraan pajak yang harus dibayar ketika melakukan impor barang dari luar negeri.">
     <link href="/dist/styles.css" rel="stylesheet">
+    <link rel="canonical" href="https://pajak.akmd.dev" />
     <script>
         const idrFormatter = new Intl.NumberFormat(undefined, {
             style: "currency",
@@ -71,7 +72,7 @@
 <body class="bg-slate-800 text-white">
     <div class="justify-center flex flex-wrap">
         <div class="w-full lg:w-8/12 xl:w-6/12 mb-6">
-            <h1 class="text-xl text-center mt-3">Kalkulator Pajak Dalam Rangka Impor</h1>
+            <h1 class="text-xl text-center mt-3">Kalkulator Bea Masuk Barang Impor</h1>
             <div class="w-full table mt-5 mx-5">
                 <div class="w-full table-row px-2 py-1 rounded border">
                     <div class="table-cell py-1">
@@ -140,7 +141,10 @@
                             max="100" min="0" step="0.1" name="tax_percent" value="7.5" />&nbsp;%
                             <br />
                         <span class="text-slate-300 text-sm">Bea masuk dapat berbeda untuk
-                            beberapa jenis barang (Ex. Pakaian)</span>
+                            beberapa jenis barang <br />(Contoh untuk Alas Kaki, Bea masuk yang dikenakan sekitar 25-30%)
+                        </span>
+                        <br />
+                        <a class="text-blue-300 text-sm hover:text-blue-500 underline" href="https://bcngurahrai.beacukai.go.id/barang-kiriman-page/">Referensi mengenai HS Code</a>
                     </div>
                 </div>
 
@@ -171,7 +175,7 @@
                 </div>
                 <div class="w-full table-row px-2">
                     <div class="table-cell py-1">
-                        <label for="result_pph">PPh</label>
+                        <label for="result_pph">PPh 22</label>
                     </div>
                     <div class="table-cell py-1">
                         <input type="text" class="rounded pl-2 border border-slate-500 bg-slate-600" name="result_pph"
@@ -201,7 +205,7 @@
         </div>
         <div class="w-8/12 md:w-6/12 lg:w-4/12 xl:w-2/12 bg-slate-600 px-2 py-1 rounded mt-3" id="sidebar">
             <!-- Show this week rate in this section -->
-            <h2 class="text-lg">Kurs minggu ini</h2>
+            <span class="text-lg">Kurs minggu ini</span>
             <div class="w-full table">
                 <div class="table-header-group">
                     <div class="table-row">
