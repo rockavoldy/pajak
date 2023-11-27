@@ -63,7 +63,23 @@
             })
         }
 
-        fetch("/kurs/").then(res => res.json()).then(resData => {
+        const fetchData = (url, options={}, retries) =>
+            fetch(url, options)
+                .then(res => {
+                    if (res.ok) {
+                        return res.json();
+                    }
+                    if (retries > 0) {
+                        return fetchData(url, options, retries - 1);
+                    }
+                    throw new Error(res.status);
+                }).catch(err => {
+                    setTimeout(() => {
+                        console.error(err.message);
+                    }, 500);
+                });
+
+        fetchData("/kurs/", {}, 5).then(resData => {
             fillCurrencyData(resData.data)
         });
     </script>

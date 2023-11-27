@@ -1,0 +1,12 @@
+# flyctl launch added from .gitignore
+**/pajak
+**/pajak.db
+**/dist
+**/node_modules
+!**/templates/dist
+**/.DS_Store
+**/pajak
+
+# flyctl launch added from templates/node_modules/tailwindcss/stubs/.gitignore
+!templates/node_modules/tailwindcss/stubs/**/*
+fly.toml
