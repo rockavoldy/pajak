@@ -9,56 +9,60 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: superfly/flyctl-actions/setup-flyctl@master
+    - run: flyctl deploy --remote-only
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       
-    - name: Set up nodejs
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+    # - name: Set up nodejs
+    #   uses: actions/setup-node@v3
+    #   with:
+    #     node-version: 18
 
-    - name: Compile tailwindcss
-      run: |
-        cd templates
-        yarn install
-        yarn prod
-        cd ..
+    # - name: Compile tailwindcss
+    #   run: |
+    #     cd templates
+    #     yarn install
+    #     yarn prod
+    #     cd ..
       
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        cache: true
-        go-version: 1.21
+    # - name: Set up Go
+    #   uses: actions/setup-go@v3
+    #   with:
+    #     cache: true
+    #     go-version: 1.21
 
-    - name: Build
-      run: |
-        go mod tidy
-        go fmt ./...
-        env GOOS=linux GOARCH=amd64 go build -o pajak .
+    # - name: Build
+    #   run: |
+    #     go mod tidy
+    #     go fmt ./...
+    #     env GOOS=linux GOARCH=amd64 go build -o pajak .
 
-    - name: Stop service
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        key: ${{ secrets.SSH_KEY }}
-        script: sudo systemctl stop pajak.service
+    # - name: Stop service
+    #   uses: appleboy/ssh-action@v1.0.0
+    #   with:
+    #     host: ${{ secrets.SSH_HOST }}
+    #     username: ${{ secrets.SSH_USER }}
+    #     passphrase: ${{ secrets.SSH_PASSPHRASE }}
+    #     key: ${{ secrets.SSH_KEY }}
+    #     script: sudo systemctl stop pajak.service
 
-    - name: Copy file to server
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        key: ${{ secrets.SSH_KEY }}
-        target: ${{ secrets.TARGET_PATH }}
-        source: pajak
-        overwrite: true
+    # - name: Copy file to server
+    #   uses: appleboy/scp-action@v0.1.4
+    #   with:
+    #     host: ${{ secrets.SSH_HOST }}
+    #     username: ${{ secrets.SSH_USER }}
+    #     passphrase: ${{ secrets.SSH_PASSPHRASE }}
+    #     key: ${{ secrets.SSH_KEY }}
+    #     target: ${{ secrets.TARGET_PATH }}
+    #     source: pajak
+    #     overwrite: true
 
-    - name: Start service
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        key: ${{ secrets.SSH_KEY }}
-        script: sudo systemctl start pajak.service
+    # - name: Start service
+    #   uses: appleboy/ssh-action@v1.0.0
+    #   with:
+    #     host: ${{ secrets.SSH_HOST }}
+    #     username: ${{ secrets.SSH_USER }}
+    #     passphrase: ${{ secrets.SSH_PASSPHRASE }}
+    #     key: ${{ secrets.SSH_KEY }}
+    #     script: sudo systemctl start pajak.service
