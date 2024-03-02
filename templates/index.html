@@ -32,6 +32,13 @@
         ]
 
         async function fillCurrencyData(data) {
+            // fill validity date range
+            if (data && data.valid_from && data.valid_to) {
+                const validDateRange = document.getElementById("dateRange")
+                validDateRange.innerText = data.valid_from + ' - ' + data.valid_to
+            }
+
+            // fill currencyData
             const currencyChoice = document.getElementById("currencyChoice")
             const currencyData = document.getElementById("currencyData")
             data.currencies.forEach(function (currency) {
@@ -171,6 +178,7 @@
             </div>
 
             <div id="calculationResult" class="table w-10/12 mt-5 mx-5">
+                <h2 class="text-lg">Hasil</h2>
                 <div class="w-full table-row px-2">
                     <div class="table-cell py-1">
                         <label for="result_bea_masuk">Bea masuk</label>
@@ -222,6 +230,7 @@
         <div class="w-8/12 md:w-6/12 lg:w-4/12 xl:w-2/12 bg-slate-600 px-2 py-1 rounded mt-3" id="sidebar">
             <!-- Show this week rate in this section -->
             <span class="text-lg">Kurs minggu ini</span>
+            <span class="text-sm" id="dateRange"></span>
             <div class="w-full table">
                 <div class="table-header-group">
                     <div class="table-row">
