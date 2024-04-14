@@ -21,9 +21,10 @@ func NewCurrency(name, symbol string, value, changes float64) (Currency, error) 
 	if err := validateValue(value); err != nil {
 		return Currency{}, err
 	}
-	if err := validateChanges(changes); err != nil {
-		return Currency{}, err
-	}
+	// FIXME: check later, if no changes should be considered or not
+	// if err := validateChanges(changes); err != nil {
+	// 	return Currency{}, err
+	// }
 
 	currency := Currency{
 		Name:    name,
