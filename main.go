@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-co-op/gocron"
+	"github.com/go-co-op/gocron/v2"
 	"github.com/rockavoldy/pajak/kurs"
 
 	"github.com/go-chi/chi/v5"
@@ -55,16 +55,31 @@ func main() {
 	// kurs API serve
 	r.Mount("/kurs", kurs.Router())
 
-	// Scheduler to run every Wednesday 5AM UTC+7 (new kurs updated every Wednesday)
-	s := gocron.NewScheduler(time.UTC)
-	s.Every(1).Week().Weekday(time.Tuesday).At("22:00:00").Do(func() {
-		log.Println("=== Update kurs.json file ===")
-		log.Println("Cron run at: ", time.Now())
-		if err := kurs.UpdateKurs(); err != nil {
-			log.Printf("err scheduler: %s", err)
-		}
-	})
-	s.StartAsync()
+	// Scheduler to run every Wednesday 7AM UTC+7 (new kurs updated every Wednesday)
+	s, err := gocron.NewScheduler()
+	if err != nil {
+		log.Println("err create new scheduler: ", err)
+	}
+
+	defer func() {
+		_ = s.Shutdown()
+	}()
+
+	s.NewJob(gocron.WeeklyJob(
+		1,
+		gocron.NewWeekdays(time.Wednesday),
+		gocron.NewAtTimes(gocron.NewAtTime(0, 0, 0)),
+	), gocron.NewTask(
+		func() {
+			log.Println("=== Update kurs.json file ===")
+			log.Println("Cron run at: ", time.Now())
+			if err := kurs.UpdateKurs(); err != nil {
+				log.Printf("err scheduler: %s", err)
+			}
+		},
+	))
+
+	s.Start()
 
 	log.Println("Listening on ", HTTP_PORT)
 	if err := http.ListenAndServe(HTTP_PORT, r); err != nil {
